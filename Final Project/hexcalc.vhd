@@ -44,6 +44,7 @@ ARCHITECTURE Behavioral OF hexcalc IS
 	ENTER_OP, SHOW_RESULT); -- state machine states
 	SIGNAL pr_state, nx_state : state; -- present and next states
 	SIGNAL tone_value : std_logic_vector (15 DOWNTO 0);
+	SIGNAL nx_counter, counter : std_logic_vector(3 DOWNTO 0); -- counter so greater values not entered
 BEGIN
 	ck_proc : PROCESS (clk_50MHz)
 	BEGIN
@@ -69,26 +70,33 @@ BEGIN
 			IF bt_clr = '1' THEN -- reset to known state
 				acc <= X"0000";
 				operand <= X"0000";
+				counter <= X"0";
 				pr_state <= ENTER_ACC;
 			ELSIF rising_edge (sm_clk) THEN -- on rising clock edge
 				pr_state <= nx_state; -- update present state
 				acc <= nx_acc; -- update accumulator
 				operand <= nx_operand; -- update operand
+				counter <= nx_counter;-- update counter
 			END IF;
 		END PROCESS;
 		-- state maching combinatorial process
 		-- determines output of state machine and next state
-		sm_comb_pr : PROCESS (kp_hit, kp_value, bt_plus, bt_eq, acc, operand, pr_state)
+		sm_comb_pr : PROCESS (kp_hit, kp_value, bt_plus, bt_eq, acc, operand, pr_state, counter)
 		BEGIN
 			nx_acc <= acc; -- default values of nx_acc, nx_operand & display
 			nx_operand <= operand;
+			nx_counter <= counter;
 			display <= acc;
 			CASE pr_state IS -- depending on present state...
 				WHEN ENTER_ACC => -- waiting for next digit in 1st operand entry
 					IF kp_hit = '1' THEN
-						nx_acc <= acc(11 DOWNTO 0) & kp_value;
+					IF counter < "011" THEN
+						  nx_acc <= acc(11 DOWNTO 0) & kp_value;
+						  nx_counter <= std_logic_vector(counter + 1);
+					   END IF;
 						nx_state <= ACC_RELEASE;
 					ELSIF bt_plus = '1' THEN
+					    nx_counter <= X"0";
 						nx_state <= START_OP;
 					ELSE
 						nx_state <= ENTER_ACC;
@@ -102,6 +110,7 @@ BEGIN
 					IF kp_hit = '1' THEN
 						nx_operand <= X"000" & kp_value;
 						nx_state <= OP_RELEASE;
+						nx_counter <= "0001";
 						display <= operand;
 					ELSE nx_state <= START_OP;
 					END IF;
@@ -113,19 +122,32 @@ BEGIN
 					END IF;
 				WHEN ENTER_OP => -- waiting for next digit in 2nd operand
 					display <= operand;
-					IF bt_eq = '1' THEN
+					IF counter < "0011" THEN
+					   IF bt_eq = '1' THEN
 						nx_acc <= acc + operand;
 						nx_state <= SHOW_RESULT;
-					ELSIF kp_hit = '1' THEN
+					   ELSIF kp_hit = '1' THEN
 						nx_operand <= operand(11 DOWNTO 0) & kp_value;
 						nx_state <= OP_RELEASE;
-					ELSE nx_state <= ENTER_OP;
-					END IF;
+						nx_counter <= std_logic_vector(counter + 1);
+					   ELSE 
+					    nx_state <= ENTER_OP;
+					   END IF;
+					ELSE 
+					   IF bt_eq = '1' THEN
+						  nx_acc <= acc + operand;
+						  nx_state <= SHOW_RESULT;
+						  nx_counter <= X"0";
+						ELSE nx_state <= ENTER_OP;
+					    END IF;
+					END IF;		
+					   
 				WHEN SHOW_RESULT => -- display result of addition
 				    tone_val <= acc;
 					IF kp_hit = '1' THEN
 						nx_acc <= X"000" & kp_value;
 						nx_state <= ACC_RELEASE;
+						nx_counter <="0001";
 					ELSE nx_state <= SHOW_RESULT;
 					END IF;
 			END CASE;

@@ -13,8 +13,15 @@ ENTITY siren IS
 	    bt_plus : IN STD_LOGIC; -- calculator "+" button
 	    bt_eq : IN STD_LOGIC; -- calculator "=" button
 	    KB_row : IN STD_LOGIC_VECTOR (4 DOWNTO 1); -- keypad row pins
-	    SEG7_seg : IN STD_LOGIC_VECTOR (6 DOWNTO 0);
-	    SEG7_anode : IN STD_LOGIC_VECTOR (7 DOWNTO 0)
+	    KB_col : OUT STD_LOGIC_VECTOR (4 DOWNTO 1);
+	    SEG7_seg : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+	    SEG7_anode : OUT  STD_LOGIC_VECTOR (7 DOWNTO 0);
+        vga_red   : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_green : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_blue  : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+        vga_hsync : OUT STD_LOGIC;
+        vga_vsync : OUT STD_LOGIC;
+        tone_size : IN INTEGER
 	    
 	    
 	);
@@ -34,6 +41,17 @@ ARCHITECTURE Behavioral OF siren IS
 			SDATA : OUT STD_LOGIC
 		);
 	END COMPONENT;
+	COMPONENT vga_top IS
+	PORT (
+	clk_50MHz : IN STD_LOGIC; -- system clock (50 MHz)
+        vga_red   : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_green : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_blue  : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+        vga_hsync : OUT STD_LOGIC;
+        vga_vsync : OUT STD_LOGIC;
+        tone_size : IN INTEGER
+        );
+    END COMPONENT;
 	COMPONENT hexcalc IS
 	   PORT (
 	       clk_50MHz : IN STD_LOGIC; -- system clock (50 MHz)
@@ -89,13 +107,23 @@ BEGIN
     clk_50MHz  => clk_50MHz,
     SEG7_anode => SEG7_anode,
     SEG7_seg   => SEG7_seg,
-    bt_clr     => bt_clr,
+    bt_clr    => bt_clr,
     bt_plus    => bt_plus,
     bt_eq      => bt_eq,
     KB_col     => KB_col,
     KB_row     => KB_row,
     tone_val   => tone_val        -- now this matches your signal
   );
+    v1: vga_top
+  PORT MAP(
+     clk_50mhz  => clk_50mhz,
+     vga_red    => vga_red,
+     vga_green  => vga_green,
+     vga_blue   => vga_blue,
+     vga_hsync  => vga_hsync,
+     vga_vsync  => vga_vsync,
+     tone_size  => TO_INTEGER(unsigned(tone_val))
+    );
 	dac : dac_if
 	PORT MAP(
 		SCLK => sclk, -- instantiate parallel to serial DAC interface
@@ -108,7 +136,8 @@ BEGIN
 		t1 : tone
 		PORT MAP( 
 			clk => audio_clk, 
-			pitch => to_unsigned(val_tone)
+			pitch => unsigned(tone_val(13 DOWNTO 0)),  -- cast the slice to UNSIGNED
+            data  => data_L
 			
 		);
 		data_R <= data_L; -- duplicate data on right channel

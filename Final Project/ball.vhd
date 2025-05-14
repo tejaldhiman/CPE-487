@@ -7,7 +7,7 @@ ENTITY spectrum_bar IS
     SCREEN_W : integer := 800;
     SCREEN_H : integer := 600;
     BAR_W    : integer := 40;
-    MAX_TONE : integer := 8190   -- 15-bit max: 2^15-1
+    MAX_TONE : integer := 8190  
   );
   PORT (
     v_sync    : IN  STD_LOGIC;
@@ -16,7 +16,7 @@ ENTITY spectrum_bar IS
     red       : OUT STD_LOGIC;
     green     : OUT STD_LOGIC;
     blue      : OUT STD_LOGIC;
-    tone_size : IN  INTEGER       -- your 0..32767 value
+    tone_size : IN  INTEGER       
   );
 END ENTITY;
 
@@ -39,11 +39,11 @@ BEGIN
       ELSIF raw > MAX_TONE THEN raw := MAX_TONE;
       END IF;
 
-      -- horizontal position ∈ [0 .. SCREEN_W-BAR_W]
+      -- horizontal position 
       x := (raw * (SCREEN_W - BAR_W)) / MAX_TONE;
       bar_x <= x;
 
-      -- vertical height ∈ [0 .. SCREEN_H] (you can remap this differently if desired)
+      -- vertical height 
 
         bar_h <= SCREEN_H;
      

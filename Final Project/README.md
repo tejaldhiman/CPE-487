@@ -14,23 +14,25 @@ By incorporating our learned knowledge, given files, edited files from Labs 3, 4
 
 ## Part 1 - Generating tone
 - We would use lab 5 as our main source of reference, and we take lab 5 files to begin.
-- `tone` will be our lowest file in the hierarchy, and we build the rest of our project on this file.
+- `tone` is kept as a basic triangle wave, now taking direct data from siren instead of wail, which was no longer needed for our project.
 - `dac_if` will also be one of the lowest and be used as a digital to analog converter.
-- `siren` will be highest in hierarchy, and will call wail in order to manipulate the tone, and use `dac_if` to convert it from a digital to analog signal.
+- `siren` is the top of our hiearchy. We use siren to directly send data to tone, having the pitch be the value input by our keypad. Siren also sends the data to hexcalc to start taking the input from the keypad, as well as calling vga_top to initialize the display. The data from keypad is sent directly here, distributing the value directly to both generating audio and video.
 
 ## Part 2 - Input from keypad
 - We would use Lab 4 as our main source of reference, of how to use the hex keypad.
 - `leddec 16` we take the output of data from the keypad and instead change the base code to output to a display based on the pitch that the key is mapped to.
 - `keypad` we don't need to touch, but outputs the state of each button
-- `hexcalc` Originally we modified this code to collect inouts for both addition and subraction. We change this to instead send to siren as a replacement.
+- `hexcalc` Originally we modified this code to collect inouts for both addition and subraction. We change this to instead send to siren as a replacement, solely using the addition programming. We have also added a 3 digit limiter for the input using a counter system, similar to the 4 digit limiter we made for the original lab
 
 ## Part 3 - Mapping to Display
 - We would use Lab 3 as our main source of reference, of understanding how to code different colors/shapes as a visual on a monitor.
-- Calling the previous `leddec.vhd` file here.
+- `vga_top` is modified to take the keypad input and send it to ball
 - `Vga_sync` included but not modified
 - `clk_wiz` files are also included but not modified
-- `ball` generates both the color and position of a ball, which we modify to instead react based on inputs from `hexcalc`
-- `TBD` is our top most file. It calls on both `hexcalc` as well as `siren` to run them simultaneously.
+- `ball` generates both the color and position of a ball, which we modify to instead react based on inputs from `hexcalc`. We generate a veritcal green bar on the screen (which is now entirely black). This bar's x position is determined by the value of the hexpad input, moving it further right the higher the number.
+
+## Visualization of Project Hiearchy
+![image](https://github.com/user-attachments/assets/71854ab0-ccc3-4f93-9433-6f799e2e7a87)
 
 ## Code Running
 

@@ -31,4 +31,8 @@ By incorporating our learned knowledge, given files, edited files from Labs 3, 4
 - `clk_wiz` files are also included but not modified
 - `ball` generates both the color and position of a ball, which we modify to instead react based on inputs from `hexcalc`
 - `TBD` is our top most file. It calls on both `hexcalc` as well as `siren` to run them simultaneously.
-  
+
+## Code Running
+
+  ![53C5EEE6-0DF2-4203-BC3A-3016EC2918F5_1_105_c](https://github.com/user-attachments/assets/d167631a-eb51-4a2c-88c3-33d9071eb7f2)
+

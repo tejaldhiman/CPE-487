@@ -32,7 +32,7 @@ By incorporating our learned knowledge, given files, edited files from Labs 3, 4
 - `ball` generates both the color and position of a ball, which we modify to instead react based on inputs from `hexcalc`. We generate a veritcal green bar on the screen (which is now entirely black). This bar's x position is determined by the value of the hexpad input, moving it further right the higher the number.
 
 ## Responsibility
-Thomas held responsibility for connecting the keypad inout to the rest of the instrument along with getting the display working. Tejal had the responsibility of connecting the audio working, along with assisting for the display working as well.
+Thomas held responsibility for connecting the keypad input to the rest of the instrument along with getting the display working. Tejal had the responsibility of connecting the audio working, along with assisting for the display working as well.
 
 ## Visualization of Project Hiearchy
 ![image](https://github.com/user-attachments/assets/71854ab0-ccc3-4f93-9433-6f799e2e7a87)
